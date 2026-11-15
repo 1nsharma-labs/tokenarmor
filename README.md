@@ -182,3 +182,12 @@ If TokenArmor helps your team reduce LLM costs, improve caching, or govern AI tr
 Enterprise licensing, custom SLAs, and commercial governance are available separately:
 * **Pricing & Enterprise Plans:** [PRICING.md](https://github.com/1nsharma-labs/tokenarmor/blob/main/PRICING.md)
 * **Enterprise Inquiries:** `enterprise@1nsharma-labs.com`
+
+---
+
+## 🌐 The 1nsharma-labs Open-Source Suite
+
+Explore our interconnected developer tools to slash costs and automate governance:
+* 🛡️ [**TokenArmor**](https://github.com/1nsharma-labs/tokenarmor): AI Gateway & Token FinOps Firewall.
+* 🍃 [**CloudPrune**](https://github.com/1nsharma-labs/cloudprune): AWS & GCP Cloud Waste & Zombie Resource Killer.
+* 🔒 [**CompliGuard**](https://github.com/1nsharma-labs/compliguard): Continuous SOC 2 & ISO 27001 Evidence Engine.
