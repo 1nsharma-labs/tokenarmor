@@ -225,7 +225,8 @@ If TokenArmor helps your team reduce LLM costs, improve caching, or govern AI tr
 
 Enterprise licensing, custom SLAs, and commercial governance are available separately:
 * **Pricing & Enterprise Plans:** [PRICING.md](https://github.com/1nsharma-labs/tokenarmor/blob/main/PRICING.md)
-* **Enterprise Inquiries:** `enterprise@1nsharma-labs.com`
+* **Direct Email:** [amitsharma9976@gmail.com](mailto:amitsharma9976@gmail.com)
+* **Direct UPI / PhonePe / GPay / Paytm:** `6393741171` (UPI ID: `6393741171@upi`)
 
 ---
 

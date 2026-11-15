@@ -47,8 +47,10 @@ For teams that need hard budget enforcement, enterprise security (PII redaction)
 
 ## Custom Enterprise & Custom Invoicing
 
-Need invoicing via Wire Transfer (ACH/SWIFT), custom MSA (Master Services Agreement), or compliance review?
-* **Email:** `enterprise@1nsharma-labs.com` / `contact@1nsharma.com`
+Need invoicing via Wire Transfer (ACH/SWIFT), direct UPI/Bank transfer, custom MSA, or compliance review?
+* **Direct Email:** [amitsharma9976@gmail.com](mailto:amitsharma9976@gmail.com)
+* **Direct UPI / PhonePe / GPay / Paytm:** `6393741171` (UPI ID: `6393741171@upi`)
+* **Founder & Lead:** **Amit Sharma** (@1nsharma)
 * **Response time:** Within 4 business hours.
 
 ---
