@@ -1,5 +1,8 @@
-# The following sponsorship platforms are supported:
+github:
+  - 1nsharma
 
-github: [1nsharma, 1nsharma-labs]
 open_collective: tokenarmor
-custom: ["https://polar.sh/1nsharma-labs", "https://tokenarmor.dev/sponsor"]
+
+custom:
+  - "https://polar.sh/1nsharma-labs"
+  - "https://github.com/1nsharma-labs/tokenarmor/blob/main/PRICING.md"

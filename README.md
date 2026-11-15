@@ -169,9 +169,16 @@ See [PRICING.md](PRICING.md) for full feature comparison.
 
 ---
 
-## 🤝 Sponsoring & Community
+## 🤝 Support TokenArmor & Community
+
+TokenArmor is an open-source project created and maintained by **1nsharma-labs**.
+
+If TokenArmor helps your team reduce LLM costs, improve caching, or govern AI traffic, consider supporting the project:
 
 * **GitHub Sponsors:** [github.com/sponsors/1nsharma](https://github.com/sponsors/1nsharma)
 * **Open Collective:** [opencollective.com/tokenarmor](https://opencollective.com/tokenarmor)
-* **Feature Bounties:** [polar.sh/1nsharma-labs](https://polar.sh/1nsharma-labs)
-* **Maintained by:** [1nsharma-labs](https://github.com/1nsharma-labs)
+* **Polar.sh Feature Bounties:** [polar.sh/1nsharma-labs](https://polar.sh/1nsharma-labs)
+
+Enterprise licensing, custom SLAs, and commercial governance are available separately:
+* **Pricing & Enterprise Plans:** [PRICING.md](https://github.com/1nsharma-labs/tokenarmor/blob/main/PRICING.md)
+* **Enterprise Inquiries:** `enterprise@1nsharma-labs.com`
