@@ -251,10 +251,37 @@
   <script>
     // Fetch and render stats
     async function loadStats() {
+      let data;
       try {
         const res = await fetch('/api/stats');
-        const data = await res.json();
+        if (!res.ok) throw new Error('Not live API');
+        data = await res.json();
+      } catch (err) {
+        // Fallback to high-fidelity static demo preview data for GitHub Pages
+        data = {
+          financials: { savedCostUSD: 428.65, upstreamSpendUSD: 184.20 },
+          cacheHitRate: 64.8,
+          cacheHits: 4120,
+          cacheMisses: 2240,
+          tokens: { total: 18450000, input: 12100000, output: 6350000 },
+          budget: { percentUsed: 36.8, currentSpend: 184.20, budget: 500.0 },
+          license: { valid: true, tier: 'Community' },
+          modelBreakdown: {
+            'gpt-4o': { requests: 2150, costUSD: 112.40 },
+            'claude-3-5-sonnet': { requests: 1420, costUSD: 54.10 },
+            'gemini-1.5-flash': { requests: 1890, costUSD: 17.70 },
+            'ollama/llama3.2': { requests: 900, costUSD: 0.00 }
+          },
+          recentRequests: [
+            { timestamp: new Date(Date.now() - 4000).toISOString(), model: 'gpt-4o', inputTokens: 420, outputTokens: 180, latencyMs: 4, costUSD: 0.0, cacheStatus: 'HIT' },
+            { timestamp: new Date(Date.now() - 12000).toISOString(), model: 'claude-3-5-sonnet', inputTokens: 850, outputTokens: 320, latencyMs: 6, costUSD: 0.0, cacheStatus: 'HIT' },
+            { timestamp: new Date(Date.now() - 25000).toISOString(), model: 'gemini-1.5-flash', inputTokens: 1200, outputTokens: 450, latencyMs: 310, costUSD: 0.000225, cacheStatus: 'MISS' },
+            { timestamp: new Date(Date.now() - 45000).toISOString(), model: 'ollama/llama3.2', inputTokens: 300, outputTokens: 150, latencyMs: 82, costUSD: 0.0, cacheStatus: 'HIT' }
+          ]
+        };
+      }
 
+      try {
         // Metrics
         document.getElementById('metric-saved').innerText = '$' + (data.financials.savedCostUSD || 0).toFixed(4);
         document.getElementById('metric-spend').innerText = '$' + (data.financials.upstreamSpendUSD || 0).toFixed(4);
@@ -365,7 +392,23 @@
         // Reload stats immediately
         loadStats();
       } catch (err) {
-        statusEl.innerText = 'Error: ' + err.message;
+        // Fallback simulation for GitHub Pages static demo
+        statusEl.innerText = 'Completed (Interactive Demo Mode)';
+        const box = document.getElementById('response-box');
+        box.classList.remove('hidden');
+
+        const isCached = window._lastPrompt === prompt;
+        window._lastPrompt = prompt;
+
+        const badge = document.getElementById('resp-cache-badge');
+        badge.innerText = isCached ? 'HIT' : 'MISS';
+        badge.className = isCached
+          ? 'px-2 py-0.5 rounded font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+          : 'px-2 py-0.5 rounded font-bold text-xs bg-gray-800 text-gray-300 border border-gray-700';
+
+        document.getElementById('resp-latency').innerText = isCached ? '3ms' : '285ms';
+        document.getElementById('resp-cost').innerText = isCached ? '$0.000000' : '$0.000105';
+        document.getElementById('resp-content').innerText = `[TokenArmor Demo Response]\nQuery: "${prompt}"\nModel: ${model}\nCache Status: ${isCached ? 'CACHE HIT (Served in 3ms with $0 token cost)' : 'CACHE MISS (Proxied upstream and cached for subsequent identical calls)'}`;
       }
     });
 
