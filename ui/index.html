@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TokenArmor | AI Gateway & Token FinOps Firewall</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' },
+            dark: { 900: '#0b0f17', 800: '#111827', 700: '#1f2937', 600: '#374151' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #0b0f17; color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+  <!-- Top Navbar -->
+  <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row items-center justify-between gap-4 glass rounded-2xl p-4 md:px-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/30">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-bold tracking-tight text-white">TokenArmor</h1>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">v1.0.0</span>
+          <span id="edition-badge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">Community</span>
+        </div>
+        <p class="text-xs text-gray-400">1nsharma-labs &bull; Open-Source AI Gateway & Token FinOps Firewall</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1.5 rounded-lg">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+        <span>Gateway Online (Port 8080)</span>
+      </div>
+      <a href="https://github.com/1nsharma-labs/tokenarmor" target="_blank" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-medium text-gray-200 border border-gray-700 transition flex items-center gap-1.5">
+        <i class="fa-brands fa-github text-sm"></i> GitHub
+      </a>
+      <a href="https://github.com/sponsors/1nsharma" target="_blank" class="px-3 py-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 text-xs font-semibold text-white shadow-lg shadow-pink-600/30 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-heart text-xs"></i> Sponsor
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto space-y-6">
+
+    <!-- KPI Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Card 1: Total Cost Saved -->
+      <div class="glass p-5 rounded-2xl relative overflow-hidden group">
+        <div class="flex items-center justify-between text-gray-400 text-xs uppercase tracking-wider font-semibold mb-2">
+          <span>Total Dollars Saved</span>
+          <i class="fa-solid fa-sack-dollar text-emerald-400 text-lg"></i>
+        </div>
+        <div class="text-3xl font-extrabold text-emerald-400" id="metric-saved">$0.0000</div>
+        <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
+          <i class="fa-solid fa-bolt text-emerald-400"></i> Free responses via prompt caching
+        </p>
+      </div>
+
+      <!-- Card 2: Cache Hit Rate -->
+      <div class="glass p-5 rounded-2xl relative overflow-hidden">
+        <div class="flex items-center justify-between text-gray-400 text-xs uppercase tracking-wider font-semibold mb-2">
+          <span>Cache Hit Rate</span>
+          <i class="fa-solid fa-bullseye text-indigo-400 text-lg"></i>
+        </div>
+        <div class="text-3xl font-extrabold text-indigo-400" id="metric-hit-rate">0.0%</div>
+        <p class="text-xs text-gray-400 mt-2">
+          <span id="metric-hits">0</span> Hits / <span id="metric-misses">0</span> Upstream Calls
+        </p>
+      </div>
+
+      <!-- Card 3: Upstream Spend -->
+      <div class="glass p-5 rounded-2xl relative overflow-hidden">
+        <div class="flex items-center justify-between text-gray-400 text-xs uppercase tracking-wider font-semibold mb-2">
+          <span>Upstream Spend</span>
+          <i class="fa-solid fa-credit-card text-purple-400 text-lg"></i>
+        </div>
+        <div class="text-3xl font-extrabold text-purple-400" id="metric-spend">$0.0000</div>
+        <p class="text-xs text-gray-400 mt-2">Paid to OpenAI / Claude / Gemini</p>
+      </div>
+
+      <!-- Card 4: Total Tokens Processed -->
+      <div class="glass p-5 rounded-2xl relative overflow-hidden">
+        <div class="flex items-center justify-between text-gray-400 text-xs uppercase tracking-wider font-semibold mb-2">
+          <span>Total Tokens</span>
+          <i class="fa-solid fa-microchip text-blue-400 text-lg"></i>
+        </div>
+        <div class="text-3xl font-extrabold text-blue-400" id="metric-tokens">0</div>
+        <p class="text-xs text-gray-400 mt-2" id="metric-tokens-sub">In: 0 &bull; Out: 0</p>
+      </div>
+    </div>
+
+    <!-- Hard Budget Progress Bar (Enterprise Ready) -->
+    <div class="glass p-5 rounded-2xl">
+      <div class="flex items-center justify-between text-sm mb-2">
+        <div class="flex items-center gap-2 font-semibold">
+          <i class="fa-solid fa-wallet text-indigo-400"></i>
+          <span>Monthly Hard Budget Firewall</span>
+          <span id="budget-status-tag" class="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-700">Tracking Active</span>
+        </div>
+        <div class="text-xs text-gray-400">
+          <span id="budget-spent-text">$0.00</span> of <span id="budget-cap-text">$500.00</span> (<span id="budget-percent">0.0%</span>)
+        </div>
+      </div>
+      <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+        <div id="budget-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-500" style="width: 2%;"></div>
+      </div>
+    </div>
+
+    <!-- Playground & Model Breakdown Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Interactive Proxy Test Playground -->
+      <div class="glass p-6 rounded-2xl lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-play text-indigo-400"></i>
+            <h2 class="font-bold text-lg text-white">Live Proxy Playground</h2>
+          </div>
+          <span class="text-xs text-gray-400">Test caching & cost calculation</span>
+        </div>
+
+        <form id="playground-form" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Target Model</label>
+              <select id="model-select" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+                <option value="gpt-4o-mini">gpt-4o-mini (OpenAI - $0.15/1M)</option>
+                <option value="gpt-4o">gpt-4o (OpenAI - $2.50/1M)</option>
+                <option value="claude-3-5-sonnet">claude-3-5-sonnet (Anthropic - $3.00/1M)</option>
+                <option value="claude-3-5-haiku">claude-3-5-haiku (Anthropic - $0.80/1M)</option>
+                <option value="gemini-1.5-flash">gemini-1.5-flash (Google - $0.075/1M)</option>
+                <option value="gemini-2.0-flash">gemini-2.0-flash (Google - $0.10/1M)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Temperature</label>
+              <input type="number" id="temp-input" value="0.7" step="0.1" min="0" max="2" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Prompt / Message</label>
+            <textarea id="prompt-input" rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-sm text-gray-200 focus:outline-none focus:border-indigo-500" placeholder="Type a prompt to test. Tip: Send the exact same prompt twice to see 0ms cache hit!">Explain how TokenArmor saves token costs with exact prompt caching.</textarea>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <button type="submit" id="submit-btn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+              <i class="fa-solid fa-paper-plane text-xs"></i> Send Request via Proxy
+            </button>
+            <div id="play-status" class="text-xs text-gray-400">Ready</div>
+          </div>
+        </form>
+
+        <!-- Response Window -->
+        <div id="response-box" class="mt-4 hidden p-4 rounded-xl bg-gray-950 border border-gray-800">
+          <div class="flex items-center justify-between mb-2 text-xs border-b border-gray-800 pb-2">
+            <span class="font-semibold text-gray-300">Proxy Response:</span>
+            <div class="flex items-center gap-3">
+              <span id="resp-cache-badge" class="px-2 py-0.5 rounded font-bold text-xs bg-gray-800 text-gray-300">MISS</span>
+              <span id="resp-latency" class="text-gray-400">0ms</span>
+              <span id="resp-cost" class="text-emerald-400 font-semibold">$0.000000</span>
+            </div>
+          </div>
+          <pre id="resp-content" class="text-xs text-gray-300 whitespace-pre-wrap font-mono max-h-48 overflow-y-auto"></pre>
+        </div>
+      </div>
+
+      <!-- Model Breakdown & Enterprise Features -->
+      <div class="space-y-6">
+        
+        <!-- Active Models -->
+        <div class="glass p-6 rounded-2xl">
+          <h3 class="font-bold text-white mb-3 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-purple-400"></i> Model Telemetry
+          </h3>
+          <div id="model-list" class="space-y-3 text-xs">
+            <div class="text-gray-400">No requests recorded yet.</div>
+          </div>
+        </div>
+
+        <!-- Enterprise Activation -->
+        <div class="glass p-6 rounded-2xl border-indigo-500/30">
+          <h3 class="font-bold text-white mb-2 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-key text-yellow-400"></i> Enterprise License
+          </h3>
+          <p class="text-xs text-gray-400 mb-3">Activate BSL 1.1 Enterprise features (Hard Quotas, PII Redaction, Okta SSO).</p>
+          <div class="flex gap-2">
+            <input type="text" id="license-input" placeholder="TARM-ENT-..." class="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-gray-200">
+            <button onclick="testKey()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 border border-gray-700">Apply</button>
+          </div>
+          <p class="text-[10px] text-gray-500 mt-2">Get license at <a href="https://github.com/1nsharma-labs/tokenarmor" class="text-indigo-400 underline" target="_blank">1nsharma-labs</a></p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Recent Requests Transaction Ledger -->
+    <div class="glass p-6 rounded-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-blue-400"></i>
+          <h2 class="font-bold text-lg text-white">Real-Time Transaction Ledger</h2>
+        </div>
+        <span class="text-xs text-gray-400">Auto-refreshing live telemetry</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="text-gray-400 uppercase border-b border-gray-800 font-semibold">
+            <tr>
+              <th class="pb-3">Time</th>
+              <th class="pb-3">Model</th>
+              <th class="pb-3">Tokens (In / Out)</th>
+              <th class="pb-3">Latency</th>
+              <th class="pb-3">Cost (USD)</th>
+              <th class="pb-3">Cache Status</th>
+            </tr>
+          </thead>
+          <tbody id="transaction-rows" class="divide-y divide-gray-800/60 font-mono">
+            <tr>
+              <td colspan="6" class="py-4 text-center text-gray-500 font-sans">No transactions recorded yet. Use the playground above to generate traffic.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Fetch and render stats
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+
+        // Metrics
+        document.getElementById('metric-saved').innerText = '$' + (data.financials.savedCostUSD || 0).toFixed(4);
+        document.getElementById('metric-spend').innerText = '$' + (data.financials.upstreamSpendUSD || 0).toFixed(4);
+        document.getElementById('metric-hit-rate').innerText = (data.cacheHitRate || 0) + '%';
+        document.getElementById('metric-hits').innerText = data.cacheHits || 0;
+        document.getElementById('metric-misses').innerText = data.cacheMisses || 0;
+        document.getElementById('metric-tokens').innerText = (data.tokens.total || 0).toLocaleString();
+        document.getElementById('metric-tokens-sub').innerText = `In: ${(data.tokens.input || 0).toLocaleString()} • Out: ${(data.tokens.output || 0).toLocaleString()}`;
+
+        // Budget
+        if (data.budget) {
+          const pct = Math.min(100, Math.max(2, data.budget.percentUsed || 0));
+          document.getElementById('budget-bar').style.width = pct + '%';
+          document.getElementById('budget-spent-text').innerText = '$' + (data.budget.currentSpend || 0).toFixed(2);
+          document.getElementById('budget-cap-text').innerText = '$' + (data.budget.budget || 500).toFixed(2);
+          document.getElementById('budget-percent').innerText = pct + '%';
+        }
+
+        // License badge
+        if (data.license && data.license.valid) {
+          const badge = document.getElementById('edition-badge');
+          badge.innerText = data.license.tier + ' Active';
+          badge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-semibold';
+        }
+
+        // Models breakdown
+        const modelList = document.getElementById('model-list');
+        const models = Object.entries(data.modelBreakdown || {});
+        if (models.length > 0) {
+          modelList.innerHTML = models.map(([name, m]) => `
+            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-900/60 border border-gray-800">
+              <span class="font-mono text-gray-300">${name}</span>
+              <div class="text-right">
+                <span class="font-bold text-gray-200">${m.requests} reqs</span>
+                <span class="text-gray-500 block">$${(m.costUSD || 0).toFixed(4)}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // Transaction rows
+        const rows = document.getElementById('transaction-rows');
+        const recents = data.recentRequests || [];
+        if (recents.length > 0) {
+          rows.innerHTML = recents.map(r => `
+            <tr class="hover:bg-gray-800/40 transition">
+              <td class="py-2.5 text-gray-400">${new Date(r.timestamp).toLocaleTimeString()}</td>
+              <td class="py-2.5 text-gray-200">${r.model}</td>
+              <td class="py-2.5 text-gray-400">${r.inputTokens} / ${r.outputTokens}</td>
+              <td class="py-2.5 text-gray-400">${r.latencyMs}ms</td>
+              <td class="py-2.5 font-bold ${r.costUSD > 0 ? 'text-gray-300' : 'text-emerald-400'}">$${r.costUSD.toFixed(6)}</td>
+              <td class="py-2.5">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.cacheStatus === 'HIT' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-gray-800 text-gray-400 border border-gray-700'}">
+                  ${r.cacheStatus}
+                </span>
+              </td>
+            </tr>
+          `).join('');
+        }
+
+      } catch (err) {
+        console.error('Failed to load stats', err);
+      }
+    }
+
+    // Handle playground submission
+    document.getElementById('playground-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const model = document.getElementById('model-select').value;
+      const temperature = parseFloat(document.getElementById('temp-input').value) || 0.7;
+      const prompt = document.getElementById('prompt-input').value;
+
+      const statusEl = document.getElementById('play-status');
+      statusEl.innerText = 'Sending...';
+
+      try {
+        const res = await fetch('/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model,
+            temperature,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+
+        const data = await res.json();
+        statusEl.innerText = 'Completed!';
+
+        // Show response box
+        const box = document.getElementById('response-box');
+        box.classList.remove('hidden');
+
+        const cacheHeader = res.headers.get('X-TokenArmor-Cache') || 'MISS';
+        const latency = res.headers.get('X-TokenArmor-Latency-Ms') || res.headers.get('X-TokenArmor-Latency-Saved-Ms') || '0';
+        const cost = res.headers.get('X-TokenArmor-Cost-USD') || '0.000000';
+
+        const badge = document.getElementById('resp-cache-badge');
+        badge.innerText = cacheHeader;
+        badge.className = cacheHeader === 'HIT' 
+          ? 'px-2 py-0.5 rounded font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+          : 'px-2 py-0.5 rounded font-bold text-xs bg-gray-800 text-gray-300 border border-gray-700';
+
+        document.getElementById('resp-latency').innerText = latency + 'ms';
+        document.getElementById('resp-cost').innerText = '$' + cost;
+        document.getElementById('resp-content').innerText = data.choices?.[0]?.message?.content || JSON.stringify(data, null, 2);
+
+        // Reload stats immediately
+        loadStats();
+      } catch (err) {
+        statusEl.innerText = 'Error: ' + err.message;
+      }
+    });
+
+    async function testKey() {
+      alert('To configure an enterprise license key, set the TOKENARMOR_LICENSE_KEY environment variable when launching TokenArmor.');
+    }
+
+    // Auto-refresh stats every 4 seconds
+    loadStats();
+    setInterval(loadStats, 4000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "name": "tokenarmor",
+  "version": "1.0.0",
+  "description": "The Open-Source AI Gateway & Token FinOps Firewall",
+  "main": "core/src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node core/src/server.js",
+    "dev": "node --watch core/src/server.js",
+    "test": "node test/test_proxy.js"
+  },
+  "keywords": [
+    "ai-gateway",
+    "llm-proxy",
+    "finops",
+    "token-cost",
+    "openai",
+    "anthropic",
+    "gemini",
+    "semantic-cache",
+    "open-source"
+  ],
+  "author": "1nsharma-labs",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1nsharma-labs/tokenarmor.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

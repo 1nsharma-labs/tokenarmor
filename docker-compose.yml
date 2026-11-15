@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  tokenarmor:
+    build: .
+    container_name: tokenarmor-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - TOKENARMOR_MONTHLY_BUDGET_USD=500
+      # Provide your upstream API keys:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      # Enterprise License Key (Optional):
+      - TOKENARMOR_LICENSE_KEY=${TOKENARMOR_LICENSE_KEY:-}
+    depends_on:
+      - redis
+    networks:
+      - tokenarmor-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: tokenarmor-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - tokenarmor-net
+
+networks:
+  tokenarmor-net:
+    driver: bridge
+
+volumes:
+  redis-data:
