@@ -9,3 +9,9 @@ dist/
 coverage/
 .vscode/
 .idea/
+
+# Environment secrets
+.env.local
+.env.*.local
+.env.development
+.env.production
