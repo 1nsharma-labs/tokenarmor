@@ -85,9 +85,53 @@ npm start
 ```
 
 Your gateway is now live:
-* **Proxy Endpoint:** `http://localhost:8080/v1/chat/completions`
-* **FinOps Dashboard UI:** `http://localhost:8080/`
-* **Metrics API:** `http://localhost:8080/api/stats`
+* **Proxy Endpoint:** `http://localhost:8090/v1/chat/completions`
+* **FinOps Dashboard UI:** `http://localhost:8090/`
+* **Prometheus /metrics Endpoint:** `http://localhost:8090/metrics`
+* **FinOps JSON API:** `http://localhost:8090/api/stats`
+
+---
+
+## 🦙 Zero-Cost Local LLM Routing (Ollama & vLLM)
+
+TokenArmor seamlessly routes queries to local self-hosted models for **$0.00 token cost**!
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="http://localhost:8090/v1", api_key="tarm_live_team_key")
+
+# Routes to local Ollama (localhost:11434) with exact caching & FinOps tracking!
+response = client.chat.completions.create(
+    model="ollama/llama3.2",
+    messages=[{"role": "user", "content": "Explain quantum computing in 2 sentences"}]
+)
+print(response.choices[0].message.content)
+```
+
+---
+
+## 📊 Prometheus & Grafana Observability (`/metrics`)
+
+TokenArmor includes an out-of-the-box **OpenMetrics Prometheus endpoint** at `/metrics`. No bulky external dependencies required.
+
+Add to your `prometheus.yml`:
+```yaml
+scrape_configs:
+  - job_name: 'tokenarmor'
+    static_configs:
+      - targets: ['localhost:8090']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+```
+
+### Exported Metrics:
+* `tokenarmor_requests_total`: Total requests proxied.
+* `tokenarmor_cache_hits_total`: Total prompt cache hits ($0.00 cost).
+* `tokenarmor_cost_spent_usd`: Cumulative upstream LLM spend.
+* `tokenarmor_cost_saved_usd`: Cumulative dollars saved by caching.
+* `tokenarmor_active_keys`: Number of active team virtual API keys.
+* `tokenarmor_model_requests_total{model="..."}`: Requests by model.
 
 ---
 
@@ -191,3 +235,4 @@ Explore our interconnected developer tools to slash costs and automate governanc
 * 🛡️ [**TokenArmor**](https://github.com/1nsharma-labs/tokenarmor): AI Gateway & Token FinOps Firewall.
 * 🍃 [**CloudPrune**](https://github.com/1nsharma-labs/cloudprune): AWS & GCP Cloud Waste & Zombie Resource Killer.
 * 🔒 [**CompliGuard**](https://github.com/1nsharma-labs/compliguard): Continuous SOC 2 & ISO 27001 Evidence Engine.
+* 🔑 [**SecretArmor**](https://github.com/1nsharma-labs/secretarmor): Zero-Trust Secret Sprawl & API Key Leak Firewall.

@@ -1,6 +1,6 @@
 {
   "name": "tokenarmor",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "The Open-Source AI Gateway & Token FinOps Firewall",
   "main": "core/src/server.js",
   "type": "module",

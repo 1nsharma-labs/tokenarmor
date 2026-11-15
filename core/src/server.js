@@ -8,6 +8,7 @@ import { globalTracker } from './finops/tracker.js';
 import { MODEL_PRICING, calculateCost } from './models/catalog.js';
 import { forwardUpstream } from './proxy/router.js';
 import { globalStorage } from './db/storage.js';
+import { generatePrometheusMetrics } from './metrics/prometheus.js';
 
 import { globalLicenseVerifier } from '../../ee/license/verifier.js';
 import { globalBudgetLimiter } from '../../ee/quotas/budgetLimiter.js';
@@ -113,6 +114,16 @@ export const server = http.createServer(async (req, res) => {
       license: licenseStatus,
       budget: budgetStatus
     });
+    return;
+  }
+
+  // 3b. Prometheus /metrics Endpoint (FinOps & Observability standard)
+  if (pathname === '/metrics' && req.method === 'GET') {
+    res.writeHead(200, {
+      'Content-Type': 'text/plain; version=0.0.4; charset=utf-8',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end(generatePrometheusMetrics());
     return;
   }
 

@@ -26,8 +26,90 @@ export async function forwardUpstream(payload, headers = {}) {
     return await handleGemini(payload, geminiKey, model);
   }
 
-  // 3. Standard OpenAI proxy
+  // 3. Ollama local self-hosted routing (OpenAI compatible)
+  if (provider === 'ollama') {
+    return await handleOllama(payload, model);
+  }
+
+  // 4. vLLM local self-hosted routing (OpenAI compatible)
+  if (provider === 'vllm') {
+    return await handleVllm(payload, model);
+  }
+
+  // 5. Standard OpenAI proxy
   return await handleOpenAI(payload, openaiKey, model);
+}
+
+/**
+ * Handle Ollama Local Self-Hosted Upstream (Zero-token cost!)
+ */
+async function handleOllama(payload, model) {
+  const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
+  const endpoint = `${ollamaBaseUrl.replace(/\/+$/, '')}/v1/chat/completions`;
+  const cleanModel = model.replace(/^ollama\//i, '');
+  const ollamaPayload = {
+    ...payload,
+    model: cleanModel
+  };
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ollamaPayload),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Ollama Error (${response.status}): ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (err) {
+    if (process.env.TOKENARMOR_TEST_MODE === 'true' || err.name === 'AbortError' || err.cause?.code === 'ECONNREFUSED' || err.code === 'ECONNREFUSED') {
+      return generateMockResponse(model, payload.messages, 'Ollama Local');
+    }
+    throw new Error(`Failed to connect to Ollama at ${ollamaBaseUrl}: ${err.message}. Is Ollama running? Run 'ollama serve' or set OLLAMA_BASE_URL.`);
+  }
+}
+
+/**
+ * Handle vLLM Local / Cluster Upstream
+ */
+async function handleVllm(payload, model) {
+  const vllmBaseUrl = process.env.VLLM_BASE_URL || 'http://127.0.0.1:8000';
+  const endpoint = `${vllmBaseUrl.replace(/\/+$/, '')}/v1/chat/completions`;
+  const cleanModel = model.replace(/^vllm\//i, '');
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...payload, model: cleanModel }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`vLLM Error (${response.status}): ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (err) {
+    if (process.env.TOKENARMOR_TEST_MODE === 'true' || err.name === 'AbortError' || err.cause?.code === 'ECONNREFUSED' || err.code === 'ECONNREFUSED') {
+      return generateMockResponse(model, payload.messages, 'vLLM Cluster');
+    }
+    throw new Error(`Failed to connect to vLLM at ${vllmBaseUrl}: ${err.message}`);
+  }
 }
 
 /**
@@ -208,9 +290,9 @@ async function handleGemini(payload, apiKey, model) {
 /**
  * High-fidelity simulated response generator for zero-friction local testing
  */
-function generateMockResponse(model, messages = []) {
+function generateMockResponse(model, messages = [], providerLabel = 'Demo') {
   const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content || 'Hello';
-  const sampleReply = `[TokenArmor Gateway Demo Response]\nReceived query: "${String(lastUserMsg).slice(0, 50)}..." via ${model}. The request was proxied, tokenized, and tracked by TokenArmor.`;
+  const sampleReply = `[TokenArmor ${providerLabel} Gateway Response]\nReceived query: "${String(lastUserMsg).slice(0, 50)}..." via ${model}. The request was proxied, tokenized, and tracked with $0.00 cost.`;
   
   const promptTokens = estimateTokens(messages);
   const completionTokens = estimateTokens(sampleReply);

@@ -80,6 +80,58 @@ export const MODEL_PRICING = {
     inputCostPer1M: 0.10,
     outputCostPer1M: 0.40,
     contextWindow: 1000000
+  },
+
+  // DeepSeek Cloud API
+  'deepseek-chat': {
+    provider: 'openai', // OpenAI compatible API
+    inputCostPer1M: 0.14,
+    outputCostPer1M: 0.28,
+    contextWindow: 64000
+  },
+  'deepseek-reasoner': {
+    provider: 'openai',
+    inputCostPer1M: 0.55,
+    outputCostPer1M: 2.19,
+    contextWindow: 64000
+  },
+
+  // Self-Hosted Local Models (Ollama & vLLM) — $0.00 Token Cost!
+  'ollama/llama3.2': {
+    provider: 'ollama',
+    inputCostPer1M: 0.00,
+    outputCostPer1M: 0.00,
+    contextWindow: 128000
+  },
+  'ollama/llama3.1': {
+    provider: 'ollama',
+    inputCostPer1M: 0.00,
+    outputCostPer1M: 0.00,
+    contextWindow: 128000
+  },
+  'ollama/mistral': {
+    provider: 'ollama',
+    inputCostPer1M: 0.00,
+    outputCostPer1M: 0.00,
+    contextWindow: 32000
+  },
+  'ollama/qwen2.5': {
+    provider: 'ollama',
+    inputCostPer1M: 0.00,
+    outputCostPer1M: 0.00,
+    contextWindow: 128000
+  },
+  'ollama/deepseek-r1': {
+    provider: 'ollama',
+    inputCostPer1M: 0.00,
+    outputCostPer1M: 0.00,
+    contextWindow: 64000
+  },
+  'vllm/default': {
+    provider: 'vllm',
+    inputCostPer1M: 0.00,
+    outputCostPer1M: 0.00,
+    contextWindow: 128000
   }
 };
 
@@ -87,6 +139,17 @@ export const MODEL_PRICING = {
  * Calculate the exact USD cost for a given model and token count
  */
 export function calculateCost(modelName, inputTokens = 0, outputTokens = 0) {
+  // Check if self-hosted model
+  const detected = detectProvider(modelName);
+  if (detected === 'ollama' || detected === 'vllm') {
+    return {
+      inputCost: 0.0,
+      outputCost: 0.0,
+      totalCost: 0.0,
+      provider: detected
+    };
+  }
+
   // Normalize model name
   const model = MODEL_PRICING[modelName] || MODEL_PRICING['gpt-4o-mini'];
   
@@ -119,5 +182,7 @@ export function detectProvider(modelName = '') {
   const normalized = modelName.toLowerCase();
   if (normalized.startsWith('claude')) return 'anthropic';
   if (normalized.startsWith('gemini')) return 'gemini';
+  if (normalized.startsWith('ollama') || normalized.startsWith('llama') || normalized.startsWith('mistral') || normalized.startsWith('qwen')) return 'ollama';
+  if (normalized.startsWith('vllm')) return 'vllm';
   return 'openai'; // default
 }
