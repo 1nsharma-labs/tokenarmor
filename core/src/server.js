@@ -7,6 +7,7 @@ import { globalCache } from './cache/cache.js';
 import { globalTracker } from './finops/tracker.js';
 import { MODEL_PRICING, calculateCost } from './models/catalog.js';
 import { forwardUpstream } from './proxy/router.js';
+import { globalStorage } from './db/storage.js';
 
 import { globalLicenseVerifier } from '../../ee/license/verifier.js';
 import { globalBudgetLimiter } from '../../ee/quotas/budgetLimiter.js';
@@ -118,6 +119,29 @@ export const server = http.createServer(async (req, res) => {
   // 4. Enterprise License Verification & Status API
   if (pathname === '/api/license' && req.method === 'GET') {
     sendJSON(res, 200, globalLicenseVerifier.getEnvironmentStatus());
+    return;
+  }
+
+  // 4b. Team API Keys Management API (v1.1 Feature)
+  if (pathname === '/api/keys' && req.method === 'GET') {
+    sendJSON(res, 200, { keys: globalStorage.getApiKeys() });
+    return;
+  }
+
+  if (pathname === '/api/keys' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const name = payload.name || 'New Team';
+        const budget = Number(payload.monthlyBudgetUSD) || 100.0;
+        const newKey = globalStorage.createApiKey(name, budget);
+        sendJSON(res, 201, { success: true, key: newKey });
+      } catch (err) {
+        sendJSON(res, 400, { error: err.message });
+      }
+    });
     return;
   }
 

@@ -1,29 +1,17 @@
 import { calculateCost } from '../models/catalog.js';
+import { globalStorage } from '../db/storage.js';
 
 /**
- * TokenArmor FinOps & Metrics Tracker
- * Records all transaction telemetry, tokens, costs, and cache savings
+ * TokenArmor FinOps & Metrics Tracker (Backed by Native SQLite)
+ * Records all transaction telemetry, tokens, costs, and cache savings persistently.
  */
 export class FinOpsTracker {
   constructor() {
-    this.totalRequests = 0;
-    this.totalCacheHits = 0;
-    this.totalInputTokens = 0;
-    this.totalOutputTokens = 0;
-    this.totalUpstreamCostUSD = 0;
-    this.totalSavedCostUSD = 0;
-
-    // Per-model statistics
-    this.modelStats = {};
-
-    // Sliding window of recent requests for dashboard
-    this.recentRequests = [];
-    this.maxRecentLogs = 100;
     this.startedAt = new Date().toISOString();
   }
 
   /**
-   * Record a completed proxy transaction
+   * Record a completed proxy transaction (Memory + Persistent SQLite)
    */
   record({
     model = 'gpt-4o-mini',
@@ -31,110 +19,56 @@ export class FinOpsTracker {
     outputTokens = 0,
     latencyMs = 0,
     isCacheHit = false,
-    apiKey = 'anonymous',
+    teamKey = 'default',
     status = 200
   }) {
-    this.totalRequests++;
-    
     const costDetails = calculateCost(model, inputTokens, outputTokens);
-    const totalTokens = inputTokens + outputTokens;
+    const txId = 'req_' + Math.random().toString(36).substring(2, 9);
+    const timestamp = new Date().toISOString();
 
-    if (isCacheHit) {
-      this.totalCacheHits++;
-      this.totalSavedCostUSD += costDetails.totalCost;
-    } else {
-      this.totalInputTokens += inputTokens;
-      this.totalOutputTokens += outputTokens;
-      this.totalUpstreamCostUSD += costDetails.totalCost;
-    }
-
-    // Update model-level stats
-    if (!this.modelStats[model]) {
-      this.modelStats[model] = {
-        requests: 0,
-        cacheHits: 0,
-        inputTokens: 0,
-        outputTokens: 0,
-        costUSD: 0,
-        savedCostUSD: 0
-      };
-    }
-
-    const m = this.modelStats[model];
-    m.requests++;
-    if (isCacheHit) {
-      m.cacheHits++;
-      m.savedCostUSD += costDetails.totalCost;
-    } else {
-      m.inputTokens += inputTokens;
-      m.outputTokens += outputTokens;
-      m.costUSD += costDetails.totalCost;
-    }
-
-    // Add to recent request ledger
-    const logEntry = {
-      id: 'req_' + Math.random().toString(36).substring(2, 9),
-      timestamp: new Date().toISOString(),
+    // Persist immediately to SQLite
+    globalStorage.recordTransaction({
+      id: txId,
+      timestamp,
       model,
       inputTokens,
       outputTokens,
-      totalTokens,
+      costUSD: costDetails.totalCost,
+      latencyMs,
+      cacheStatus: isCacheHit ? 'HIT' : 'MISS',
+      teamKey
+    });
+
+    return {
+      id: txId,
+      timestamp,
+      model,
+      inputTokens,
+      outputTokens,
+      totalTokens: inputTokens + outputTokens,
       costUSD: Number(costDetails.totalCost.toFixed(6)),
       latencyMs,
       cacheStatus: isCacheHit ? 'HIT' : 'MISS',
       status
     };
-
-    this.recentRequests.unshift(logEntry);
-    if (this.recentRequests.length > this.maxRecentLogs) {
-      this.recentRequests.pop();
-    }
-
-    return logEntry;
   }
 
   /**
-   * Get comprehensive FinOps overview
+   * Get comprehensive FinOps overview from persistent SQLite storage
    */
   getOverview() {
-    const totalTokens = this.totalInputTokens + this.totalOutputTokens;
-    const cacheHitRate = this.totalRequests > 0 
-      ? ((this.totalCacheHits / this.totalRequests) * 100).toFixed(1) 
-      : '0.0';
+    const stats = globalStorage.getOverviewStats();
+    const recent = globalStorage.getRecentTransactions(20);
 
     return {
       uptimeSince: this.startedAt,
-      totalRequests: this.totalRequests,
-      cacheHits: this.totalCacheHits,
-      cacheMisses: this.totalRequests - this.totalCacheHits,
-      cacheHitRate: Number(cacheHitRate),
-      tokens: {
-        input: this.totalInputTokens,
-        output: this.totalOutputTokens,
-        total: totalTokens
-      },
-      financials: {
-        upstreamSpendUSD: Number(this.totalUpstreamCostUSD.toFixed(4)),
-        savedCostUSD: Number(this.totalSavedCostUSD.toFixed(4)),
-        netCostUSD: Number(this.totalUpstreamCostUSD.toFixed(4))
-      },
-      modelBreakdown: this.modelStats,
-      recentRequests: this.recentRequests.slice(0, 20)
+      ...stats,
+      recentRequests: recent
     };
   }
 
-  /**
-   * Reset stats
-   */
-  reset() {
-    this.totalRequests = 0;
-    this.totalCacheHits = 0;
-    this.totalInputTokens = 0;
-    this.totalOutputTokens = 0;
-    this.totalUpstreamCostUSD = 0;
-    this.totalSavedCostUSD = 0;
-    this.modelStats = {};
-    this.recentRequests = [];
+  get totalUpstreamCostUSD() {
+    return globalStorage.getOverviewStats().financials.upstreamSpendUSD;
   }
 }
 
