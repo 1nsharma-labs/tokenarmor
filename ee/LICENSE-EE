@@ -1,0 +1,25 @@
+Business Source License 1.1
+Parameters:
+
+Licensor: 1nsharma-labs
+Licensed Work: TokenArmor Enterprise Edition (files located in the /ee directory of the TokenArmor repository)
+Change Date: 2030-01-01
+Change License: Apache License, Version 2.0
+
+Additional Use Grant:
+You may make use of the Licensed Work without fee:
+1. In non-production environments for evaluation, development, and testing purposes.
+2. In production environments for small organizations whose total LLM API calls proxied by TokenArmor do not exceed 100,000 requests per calendar month, and where no more than 3 individual developer accounts access the system.
+
+For production use exceeding the Additional Use Grant (including enterprise Single Sign-On (SSO), Hard Budget Quotas, Enterprise PII Scrubber, and multi-tenant billing), you must obtain a valid commercial Enterprise License Key from 1nsharma-labs (https://github.com/1nsharma-labs/tokenarmor).
+
+Terms:
+The Licensor hereby grants You the right to copy, modify, create derivative works, redistribute, and make non-production use of the Licensed Work. The Licensor also grants You an Additional Use Grant to make production use of the Licensed Work according to the parameters specified above.
+
+Effective on the Change Date, or the fourth anniversary of the first publicly available distribution of a specific version of the Licensed Work under this License, whichever comes first, the Licensor hereby grants You rights to use the Licensed Work under the Change License.
+
+All copies of the Licensed Work and derivative works must include this License text, and must retain all copyright and patent notices from the Licensed Work.
+
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK AND ALL SERVICES PROVIDED BY LICENSOR AND CONTRIBUTORS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+Copyright 2026 1nsharma-labs. All rights reserved.
