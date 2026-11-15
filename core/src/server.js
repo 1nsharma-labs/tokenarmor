@@ -16,7 +16,26 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const UI_DIR = path.resolve(__dirname, '../../ui');
 
-const DEFAULT_PORT = process.env.PORT || 8080;
+// Auto-load .env if exists (Zero-dependency)
+const envFile = path.resolve(__dirname, '../../.env');
+if (fs.existsSync(envFile)) {
+  try {
+    const lines = fs.readFileSync(envFile, 'utf-8').split(/\r?\n/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+        const [k, ...v] = trimmed.split('=');
+        const key = k.trim();
+        const val = v.join('=').trim();
+        if (!process.env[key] && val) {
+          process.env[key] = val;
+        }
+      }
+    }
+  } catch {}
+}
+
+const DEFAULT_PORT = process.env.PORT || 8090;
 const DEFAULT_HOST = process.env.HOST || '0.0.0.0';
 
 /**
